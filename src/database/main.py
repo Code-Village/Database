@@ -9,7 +9,6 @@ Hello()
 
 load_dotenv()
 
-
 app = Flask(__name__)
 app.config.from_pyfile("config.py")
 
