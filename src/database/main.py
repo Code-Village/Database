@@ -31,9 +31,6 @@ def createApp():
             from users
         """).fetchall()
 
-        for data in row:
-            print(type(data['id']))
-
         return jsonify([ {'id': data['id'], 'pw': data['pw']} for data in row ])
 
     return app
