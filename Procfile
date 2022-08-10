@@ -1,1 +1,1 @@
-web: gunicorn --workers=2 src.database.main:app --bind 0.0.0.0:${PORT}
+web: gunicorn --workers=2 src.database.main:createApp --bind 0.0.0.0:${PORT}
