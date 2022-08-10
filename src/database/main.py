@@ -3,6 +3,10 @@ from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from sqlalchemy import create_engine, text
 
+from temp.asdf import Hello
+
+Hello()
+
 load_dotenv()
 
 app = Flask(__name__)
