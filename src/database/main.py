@@ -4,6 +4,7 @@ from flask import Flask
 from flask_restx import Api, Resource, reqparse
 
 from src.database.api.user import *
+from src.database.api.team import *
 
 load_dotenv()
 
@@ -22,6 +23,7 @@ api = Api(
 )
 
 api.add_namespace(User, '/user')
+api.add_namespace(Team, '/team')
 
 if __name__ == "__main__":
     # port = int(os.environ.get("PORT", "5000"))
