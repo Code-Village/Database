@@ -14,7 +14,7 @@ app.config.SWAGGER_UI_DOC_EXPANSION = 'full'
 
 api = Api(
     app,
-    version=0.1, 
+    version=0.2, 
     title="Code Village - DB", 
     description="API for {Code Village}", 
     terms_url="/",
