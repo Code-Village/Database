@@ -3,6 +3,7 @@ from flask import jsonify, request
 from flask_restx import Resource, Namespace, fields, reqparse
 from sqlalchemy import create_engine
 from datetime import datetime
+import json
 
 from src.database.config import *
 
@@ -113,8 +114,10 @@ class TeamData(Resource):
 
         ret_dict = dict([ (key, row[key]) for key in row.keys() ])
         ret_dict['tfounded'] = ret_dict['tfounded'].strftime("%Y-%m-%d")
-        
-        return ret_dict, 200
+
+        ret = jsonify(ret_dict)
+        ret.status_code = 200
+        return ret
 
     @Team.doc(
         parser=post_parser,
