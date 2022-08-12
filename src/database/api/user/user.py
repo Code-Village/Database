@@ -2,11 +2,8 @@ from importlib.metadata import requires
 from flask import jsonify, request
 from flask_restx import Resource, Namespace, fields, reqparse
 from sqlalchemy import create_engine
-import json
 
 from src.database.config import *
-
-DATABASE = {"data": "아무튼 빅-데이터"}
 
 database = create_engine(DB_URL, encoding='utf8', max_overflow=0)
 
@@ -27,6 +24,7 @@ post_user_data_parser = reqparse.RequestParser()
 post_user_data_parser.add_argument('id', type=str, required=True, help='가입할 유저의 id')
 post_user_data_parser.add_argument('pw', type=str, required=True, help='가입할 유저의 pw')
 post_user_data_parser.add_argument('nickname', type=str, required=True, help='가입할 유저의 닉네임')
+post_user_data_parser.add_argument('avartar', type=int, required=True, help='가입할 유저의 아바타 번호')
 
 @User.route('/regist') # 회원가입시 이용
 class UserRegist(Resource):
@@ -53,6 +51,7 @@ class UserRegist(Resource):
     responses={
         200: 'Can regist',
         201: 'Duplicate Data in Database',
+        400: 'Fatal error',
     })
     def post(self):
         """id, pw, nickname을 데이터베이스에 전달"""
@@ -61,9 +60,13 @@ class UserRegist(Resource):
         id = args['id']
         pw = args['pw']
         nickname = args['nickname']
+        avartar = args['avartar']
 
-        query = f"INSERT INTO users (id, pw, nickname) VALUES ('{id}', '{pw}', '{nickname}');"
-        database.execute(query)
+        query = f"INSERT INTO users (id, pw, nickname, avartar) VALUES ('{id}', '{pw}', '{nickname}', {avartar});"
+        try:
+            database.execute(query)
+        except:
+            return 201
 
         return 200
 
@@ -148,8 +151,6 @@ class UserData(Resource):
         })
     def delete(self):
         """해당 id를 가진 계정 삭제"""
-        args = request.args
-
         user_id = request.args['id']
 
         try:
