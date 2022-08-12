@@ -115,8 +115,11 @@ class TeamData(Resource):
         ret_dict = dict([ (key, row[key]) for key in row.keys() ])
         ret_dict['tfounded'] = ret_dict['tfounded'].strftime("%Y-%m-%d")
 
+        
         ret = jsonify(ret_dict)
         ret.status_code = 200
+
+
         return ret
 
     @Team.doc(
