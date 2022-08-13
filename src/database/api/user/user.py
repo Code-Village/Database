@@ -37,8 +37,11 @@ class UserRegist(Resource):
     def get(self):
         """params 필요. 해당 params가 있는 것만 검색 -> 중복 방지용. id,nickname 중복 검사에 사용"""
         args = request.args
+
+        col = args['col']
+        data = args['data']
         
-        query = f"SELECT COUNT(IF({args['col']}='{args['data']}',1,NULL)) as cnt FROM users"
+        query = f"SELECT COUNT(IF({col}='{data}',1,NULL)) as cnt FROM users"
         rows = [ list(row) for row in database.execute(query).fetchall() ]
 
         if rows[0][0] > 0:
@@ -88,8 +91,8 @@ class UserData(Resource):
         parser=get_parser,
         responses={
             200: 'Success',
-            400: 'Fatal error',
-            401: 'Not in database'
+            201: 'Not in database',
+            400: 'Fatal error'
         })
     def get(self):
         """column에 해당 값이 있을 경우 가져옴"""
@@ -109,7 +112,7 @@ class UserData(Resource):
         try: 
             row.keys()
         except:
-            return 401
+            return 201
 
         ret_data = dict([ (key, row[key]) for key in row.keys() ])
         
