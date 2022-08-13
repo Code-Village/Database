@@ -186,7 +186,7 @@ class TeamData(Resource):
             database.execute(f"""
                 DELETE
                 FROM teams
-                WHERE tname='{team_name};'
+                WHERE tname='{team_name}';
             """)
         except:
             return 400
