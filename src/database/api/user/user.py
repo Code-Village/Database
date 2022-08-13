@@ -39,7 +39,7 @@ class UserRegist(Resource):
         args = request.args
         
         query = f"SELECT COUNT(IF({args['col']}='{args['data']}',1,NULL)) as cnt FROM users"
-        rows = [ list(row) for row in database.execute(query).fetchall()]
+        rows = [ list(row) for row in database.execute(query).fetchall() ]
 
         if rows[0][0] > 0:
             return 201
@@ -112,7 +112,12 @@ class UserData(Resource):
         except:
             return 401
 
-        return {'search-col': f'{col}', 'search-data': dict([ (key, row[key]) for key in row.keys()])}, 200
+        ret_data = dict([ (key, row[key]) for key in row.keys() ])
+        
+        ret = jsonify(ret_data)
+        ret.status_code = 200
+
+        return ret
 
 
     @User.doc(
