@@ -50,8 +50,7 @@ class UserRegist(Resource):
     parser=post_user_data_parser,
     responses={
         200: 'Can regist',
-        201: 'Duplicate Data in Database',
-        400: 'Fatal error',
+        201: 'Duplicate Data in Database'
     })
     def post(self):
         """id, pw, nickname을 데이터베이스에 전달"""
@@ -124,14 +123,15 @@ class UserData(Resource):
         parser=put_parser,
         responses={
             200: 'Query succeed',
-            400: 'Fatal error'
+            400: 'Fatal error',
+            401: 'Cant change values'
         })
     def put(self):
         """id를 제외한 값들 업데이트 가능"""
         args = request.args
         col = args['col']
 
-        if col=="id":
+        if col=="id" or col=="uid":
             return 401
 
         user_id = request.args['id']
@@ -164,6 +164,7 @@ class UserData(Resource):
                 FROM users
                 WHERE id='{user_id}'
             """)
-            return 401
         except:
             return 400
+
+        return 200

@@ -17,8 +17,8 @@ get_user_data_parser = reqparse.RequestParser() # 대부분 id, 닉네임 검색
 get_user_data_parser.add_argument('data', type=str, required=True, help='데이터베이스에서 검색할 값')
 
 post_user_data_parser = reqparse.RequestParser()
-post_user_data_parser.add_argument('teamname', type=str, required=True, help='가입할 유저의 id')
-post_user_data_parser.add_argument('admin', type=str, required=True, help='가입할 유저의 pw')
+post_user_data_parser.add_argument('tname', type=str, required=True, help='만들 팀의 이름')
+post_user_data_parser.add_argument('admin', type=str, required=True, help='만들 팀의 팀장 닉네임')
 
 @Team.route('/regist') # 팀 생성시 이용
 class TeamRegist(Resource):
@@ -26,8 +26,7 @@ class TeamRegist(Resource):
     parser=get_user_data_parser,
     responses={
         200: 'Can regist',
-        401: 'Failed To Append Team',
-        402: 'Failed To Append Teamlist'
+        201: 'Same Name in Database'
     })
     def get(self):
         """params 필요. 해당 params가 있는 것만 검색 -> 중복 방지용. 팀 이름 중복 검사에 사용"""
@@ -45,8 +44,8 @@ class TeamRegist(Resource):
     parser=post_user_data_parser,
     responses={
         200: 'Can regist',
-        201: 'Duplicate Data in Database',
-        400: 'Fatal error',
+        401: 'Cant post data to Company table',
+        402: 'Cant post data to Team table'
     })
     def post(self):
         """teamname, 팀장 이름을 데이터베이스에 전달"""
@@ -57,7 +56,7 @@ class TeamRegist(Resource):
         tadmin_nickname = args['admin']
 
         try:
-            query = f"INSERT INTO teams (tname, tadmin, tfounded) VALUES ('{teamname}', '{tadmin_nickname}', '{datetime.today()}');"
+            query = f"INSERT INTO teams (tname, tadmin, tfounded) VALUES ('{teamname}', '{tadmin_nickname}', '{datetime.today()}')"
             database.execute(query)
         except:
             return 402
@@ -71,19 +70,19 @@ class TeamRegist(Resource):
         return 200
 
 get_parser = reqparse.RequestParser()
-get_parser.add_argument('teamname', type=str, required=True, help='팀 이름')
+get_parser.add_argument('tname', type=str, required=True, help='팀 이름')
 
 post_parser = reqparse.RequestParser()
-post_parser.add_argument('teamname', type=str, required=True, help="팀 이름")
+post_parser.add_argument('tname', type=str, required=True, help="팀 이름")
 post_parser.add_argument('uname', type=str, required=True, help="팀원 닉네임")
 
 put_parser = reqparse.RequestParser()
-put_parser.add_argument('id', type=str, required=True, help="데이터베이스에서 변경하고자 하는 팀의, 이름")
+put_parser.add_argument('tname', type=str, required=True, help="데이터베이스에서 변경하고자 하는 팀의, 이름")
 put_parser.add_argument('col', type=str, required=True, help='데이터베이스에서 변경할 값이 있는 열')
 put_parser.add_argument('data', type=str, required=True, help='데이터베이스에서 변경할 값')
 
 del_parser = reqparse.RequestParser()
-del_parser.add_argument('teamname', type=str, required=True, help='데이터베이스에서 삭제할 팀 이름')
+del_parser.add_argument('tname', type=str, required=True, help='데이터베이스에서 삭제할 팀 이름')
 
 @Team.route('')
 class TeamData(Resource):
@@ -102,7 +101,7 @@ class TeamData(Resource):
             row = database.execute(f"""
                 select *
                 from teams 
-                where tname='{arg}';
+                where tname='{arg}'
             """).fetchone()
         except:
             return 400
@@ -146,26 +145,26 @@ class TeamData(Resource):
         parser=put_parser,
         responses={
             200: 'Query succeed',
-            400: 'Fatal error'
+            400: 'Fatal error',
+            401: 'Cant change values'
         })
     def put(self):
-        """id를 제외한 값들 업데이트 가능"""
+        """팀장만 변경 가능? 팀 이름도 변경 가능? teamlike, teamview는 항상 올라가야하므로 수정 가능해야함"""
         args = request.args
         col = args['col']
 
-        if col=="id":
+        if col=="tfounded" or col=="tid":
             return 401
 
-        user_id = request.args['id']
+        teamname = request.args['tname']
         arg = request.args['data']
         
         try:
             database.execute(f"""
                 UPDATE teams
-                SET {col}='{arg}'
-                WHERE id='{user_id}'
+                SET {col}={arg}
+                WHERE tname='{teamname}'
             """)
-
             
         except:
             return 400
@@ -180,13 +179,13 @@ class TeamData(Resource):
         })
     def delete(self):
         """해당 teamname을 가진 팀 삭제"""
-        team_name = request.args['teamname']
+        team_name = request.args['tname']
 
         try:
             database.execute(f"""
                 DELETE
                 FROM teams
-                WHERE tname='{team_name}';
+                WHERE tname='{team_name}'
             """)
         except:
             return 400
