@@ -52,7 +52,7 @@ class TeamRegist(Resource):
 
         args = request.args
 
-        teamname = args['teamname']
+        teamname = args['tname']
         tadmin_nickname = args['admin']
 
         try:
@@ -95,7 +95,7 @@ class TeamData(Resource):
         })
     def get(self):
         """teamname에 해당 값이 있을 경우 가져옴"""
-        arg = request.args["teamname"]
+        arg = request.args["tname"]
         
         try:
             row = database.execute(f"""
@@ -129,7 +129,7 @@ class TeamData(Resource):
         """유저를 팀에 추가"""
         args = request.args
 
-        tname = args['teamname']
+        tname = args['tname']
         uname = args['uname']
 
         query = f"INSERT INTO companys (tname, uname) VALUES ('{tname}', '{uname}')"
